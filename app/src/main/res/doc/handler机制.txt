@@ -1,0 +1,33 @@
+Handler机制分析：
+Message：
+传递的信息，
+包含一个名为target的Handler 对象
+包含一个名为callback的Runnable 对象
+使用obtain 方法可以从消息池中获取Message的实例(推荐使用，而不是用构造方法直接生产)。
+
+MessageQueue:
+消息队列（由Message组成）
+next()：返回一个Message ,队列出栈。
+enqueueMessage:入队操作
+
+Looper：
+队列的创建者，同时传递消息（死循环）
+prepare():
+对于每一个线程只能有一个Looper,sThreadLocal.set(new Looper(quitAllowed)),将当前线程与Looper绑定。
+Looper(quitAllowed)：
+调用 mQueue = new MessageQueue(quitAllowed)，创建了一个MessageQueue。
+loop()：
+在一个死循环中，通过队列出栈的形式，不断从MessageQueue 中取出新的Message，然后执行msg.target.dispatchMessage(msg) 方法，还记的前面Message类的定义吗，这个target属性其实就是一个Handler 对象，因此在这里就会不断去执行Handler 的dispatchMessage 方法。如果取出的Message对象为null，就会跳出死循环，一次Handler的工作整个就结束了。
+
+Handler:
+构造方法：
+初始化工作，调用Looper.myLooper()赋值给当前mLooper，关联MessageQueue；这里由于代码中调用的是不带任何参数的构造函数，因此会创建一个mCallback=null且非异步执行的Handler 
+
+postDelayed方法：
+getPostMessage(Runnable r）,将自己new的Runnable付给了Message的callback.
+msg.target = this,将Message就和当前Handler关联起来，enqueueMessage队列入队，然后在Looper.loop()方法中，会从MessageQueue中取出Message 并执行他的dispatchMessage 方法，执行handleCallback(msg)，其中msg.runnable.run并不是子线程中执行，而是Runnable赋值给了一个Message对象的callback属性，而这个Message会被传递到创建Handler所在的线程
+
+ActivityThread-main方法：
+执行了prepareMainLooper()方法，自行创建MessageQueue，
+
+如果自己写的线程，就要我们主动去调用Looper.prepare()，Looper.loop()。

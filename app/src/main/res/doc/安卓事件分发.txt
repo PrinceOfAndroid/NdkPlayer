@@ -1,0 +1,17 @@
+事件分发机制：
+本质：将点击事件（MotionEvent）传递到某个具体的View & 处理的整个过程
+
+事件的分发顺序：
+Activity—ViewGroup—View
+
+事件分发过程主要方法：
+dispatchTouchEvent()  事件能够传递给当前view时就会调用这个方法,处理事件分发
+onTouchEvent() 处理点击事件，dispatchTouchEvent()内部会使用。
+onInterceptTouchEvent() 
+
+点击事件发生时，会最先传到Activity的dispatchTouchEvent()进行处理
+1.判断是否为DOWN操作（一般是的） 执行 onUserInteraction()：
+   a. 该方法为空方法
+   b. 当此activity在栈顶时，触屏点击按home，back，menu键等都会触发此方法
+2.判断getWindow().superDispatchTouchEvent(ev)，为true,分发就结束了，一般返回false，来调用自己的onTouchEvent()
+3.onTouchEvent()开始处理，

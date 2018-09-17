@@ -1,0 +1,12 @@
+Glide加载Gif优化：
+替换内部引擎framesequence框架优化
+framesequence是安卓源码中
+AOSP网站下载framesequence项目
+
+CMakeLists编写
+
+file(GLOB framesequence_source src/main/cpp/*.cpp)
+include_directories(src/main/cpp/)
+添加缺失的lib  log  bitmap 
+
+
